@@ -7,19 +7,19 @@ const Hero = () => {
     const [menuOpen, setMenuOpen] = React.useState(false);
 
     const logos = [
-        'https://saasly.prebuiltui.com/assets/companies-logo/instagram.svg',
+        'https://saasly.prebuiltui.com/assets/companies-slogo/instagram.svg',
         'https://saasly.prebuiltui.com/assets/companies-logo/framer.svg',
         'https://saasly.prebuiltui.com/assets/companies-logo/microsoft.svg',
         'https://saasly.prebuiltui.com/assets/companies-logo/huawei.svg',
         'https://saasly.prebuiltui.com/assets/companies-logo/walmart.svg',
     ]
-
+    
     return (
         <>
             <div className="min-h-screen pb-20">
                 {/* Navbar */}
                 <nav className="z-50 flex items-center justify-between w-full py-4 px-6 md:px-16 lg:px-24 xl:px-40 text-sm">
-                    <a href="https://prebuiltui.com">
+                    <a href="/" className="flex items-center gap-2">
                        <img src="/logo.svg" alt="logo" className="h-11 w-auto"/>
                     </a>
 

@@ -112,6 +112,7 @@ export const updateResume = async (req, res) => {
             const response = await imageKit.files.upload({
             file: imageBufferData,
             fileName: 'resume.png',
+            folder: 'user-resumes',
             transformation:{
                 pre: 'w-300,h-300,fo-face,z-0.75' + (removeBackground ? ',e-bgremove' : '')
             }
@@ -120,7 +121,8 @@ export const updateResume = async (req, res) => {
 resumeDataCopy.personal_info.image = response.url;
         }
 
-        const resume = await Resume.findOneAndUpdate({userId, _id: resumeId}, resumeDataCopy, {new: true});
+        const resume = await Resume.findOneAndUpdate({userId, _id: resumeId},
+         resumeDataCopy, {new: true});
 
         return res.status(200).json({message: 'Saved Successfully', resume});
 

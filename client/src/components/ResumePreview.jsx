@@ -5,8 +5,13 @@ import MinimalTemplate from './templates/MinimalTemplate'
 import MinimalImageTemplate from './templates/MinimalImageTemplate'
 
 const ResumePreview = ({data , template , accentColor , classes = ""}) => {
-
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/5d0f5da7-496c-42aa-bac3-fd43d77817e9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ResumePreview.jsx:7',message:'ResumePreview received props',data:{template,accentColor,hasAccentColor:!!accentColor,accentColorType:typeof accentColor},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+    // #endregion
     const renderTemplate = () =>{
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/5d0f5da7-496c-42aa-bac3-fd43d77817e9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ResumePreview.jsx:10',message:'renderTemplate called',data:{template,accentColor},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+        // #endregion
         switch (template) {
             case "modern":
                 return <ModernTemplate data={data} accentColor={accentColor}/>;
