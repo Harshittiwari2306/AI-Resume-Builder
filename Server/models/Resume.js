@@ -17,16 +17,17 @@ const ResumeSchema = new mongoose.Schema(
 
     skills: [String],
 
-    personal_info: {
-      image: String,
-      name: String,
-      profession: String,
-      email: String,
-      phone: String,
-      address: String,
-      linkedin: String,
-      website: String,
-    },
+personal_info: {
+  name: { type: String },
+  location: { type: String }, // ✅ ADD THIS
+  email: { type: String },
+  phone: { type: String },
+  profession: { type: String },
+  linkedin: { type: String },
+  website: { type: String },
+  image: { type: String },
+},
+
 
     work_experience: [
       {

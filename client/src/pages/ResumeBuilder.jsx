@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
-import { dummyResumeData } from "../assets/assets";
 import {
   ArrowLeft,
   ChevronLeft,
@@ -26,59 +25,38 @@ import ExperienceForm from "../components/ExperienceForm";
 import EducationForm from "../components/EducationForm";
 import ProjectForm from "../components/ProjectForm";
 import SkillsForm from "../components/SkillsForm";
-import { resume } from "react-dom/server";
+
 import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
+import api from "../configs/api"; // ✅ FIX 1
+
+// ✅ FIX 2: normalize resume so reload does not reset
+const normalizeResume = (resume) => ({
+  _id: resume._id || "",
+  title: resume.title || "",
+  personal_info: resume.personal_info || {},
+  professional_summary: resume.professional_summary || "",
+  work_experience: resume.work_experience || [],
+  education: resume.education || [],
+  project: resume.project || [],
+  skills: resume.skills || [],
+  template: resume.template || "classic",
+  accent_color: resume.accent_color || "#9333ea",
+  public: resume.public || false,
+});
 
 const ResumeBuilder = () => {
   const { resumeId } = useParams();
-  const {token} = useSelector(state => state.auth)
+  const { token } = useSelector((state) => state.auth);
 
-  const [resumeData, setResumeData] = useState({
-    _id: "",
-    title: "",
-    personal_info: {},
-    professional_summary: "",
-    work_experience: [],
-    education: [],
-    project: [],
-    skills: [],
-    template: "classic",
-    accent_color: "#9333ea",
-    public: false,
-  });
-
-const loadExistingResume = async () => {
-  try {
-    const { data } = await api.get(`/api/resumes/get/${resumeId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (data?.resume) {
-      const normalized = normalizeResume(data.resume);
-      setResumeData(normalized);
-      document.title = normalized.title || "Resume";
-    }
-  } catch (err) {
-    console.error("Load resume error:", err.response?.data || err.message);
-  }
-};
-
-
-useEffect(() => {
-  if (resumeId && token) {
-    loadExistingResume();
-  }
-}, [resumeId, token]);
-
-
+  const [resumeData, setResumeData] = useState(normalizeResume({}));
   const [activeSectionIndex, setActiveSectionIndex] = useState(0);
   const [removeBackground, setRemoveBackground] = useState(false);
 
   const sections = [
     { id: "personal", name: "personal info", icon: User },
     { id: "summary", name: "summary", icon: FileText },
-    { id: "experience", name: "experience", icon: Briefcase }, // ✅ fixed
+    { id: "experience", name: "experience", icon: Briefcase },
     { id: "education", name: "education", icon: GraduationCap },
     { id: "projects", name: "projects", icon: Folder },
     { id: "skills", name: "skills", icon: Sparkles },
@@ -86,66 +64,83 @@ useEffect(() => {
 
   const activeSection = sections[activeSectionIndex];
 
-
-  const changeResumevisibility = async()=>{
+  /* LOAD */
+  const loadExistingResume = async () => {
     try {
-      const formData = new FormData();
-      formData.append('resumeId', resumeId);
-      formData.append('public', JSON.stringify(!resumeData.public));
-      const {data} = await api.put('/api/resumes/update', formData, {
+      const { data } = await api.get(`/api/resumes/get/${resumeId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setResumeData({...resumeData, public: !resumeData.public})
+
+      if (data?.resume) {
+        const normalized = normalizeResume(data.resume);
+        setResumeData(normalized);
+        document.title = normalized.title || "Resume";
+      }
+    } catch (error) {
+      console.error("Load resume error:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (resumeId && token) loadExistingResume();
+  }, [resumeId, token]);
+
+  /* SAVE */
+  const saveResume = () => {
+    let updatedResumeData = structuredClone(resumeData);
+
+    // ✅ FIX 4: safe access
+    if (
+      updatedResumeData.personal_info &&
+      typeof updatedResumeData.personal_info.image === "object"
+    ) {
+      delete updatedResumeData.personal_info.image;
+    }
+
+    const formData = new FormData();
+    formData.append("resumeId", resumeId);
+    formData.append("resumeData", JSON.stringify(updatedResumeData));
+    removeBackground && formData.append("removeBackground", "yes");
+
+    if (resumeData.personal_info?.image instanceof File) {
+      formData.append("image", resumeData.personal_info.image);
+    }
+
+    // ✅ FIX 5: return promise
+    return api.put("/api/resumes/update", formData, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  };
+
+  /* VISIBILITY */
+  const changeResumevisibility = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("resumeId", resumeId);
+      formData.append("public", JSON.stringify(!resumeData.public));
+
+      const { data } = await api.put("/api/resumes/update", formData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // ✅ FIX 6: sync with DB
+      setResumeData((prev) => ({ ...prev, ...data.resume }));
       toast.success(data.message);
     } catch (error) {
       console.error("Error changing visibility:", error);
     }
-  }
+  };
 
-  const handleShare = () =>{
-    const frontendUrl = window.location.href.split('/app/')[0];
-    const resumeUrl = frontendUrl + '/view/' + resumeId;
+  const handleShare = () => {
+    const frontendUrl = window.location.href.split("/app/")[0];
+    const resumeUrl = frontendUrl + "/view/" + resumeId;
 
-    if(navigator.share){
-      navigator.share({url: resumeUrl , text: "My Resume"})
-    }
-    else{
-      alert('Share not supported on this browser.')
-    }
-  }
+    navigator.share
+      ? navigator.share({ url: resumeUrl, text: "My Resume" })
+      : alert("Share not supported");
+  };
 
-
-  const downloadResume = () => {
-    window.print();
-  }
-
-
-  const saveResume = async () => {
-    try {
-      let updatedResumeData = structuredClone(resumeData);
-
-      //remove image from updated resume data
-
-      if(typeof resumeData.personal_info.image === 'object'){
-        delete updatedResumeData.personal_info.image
-    }
-    const formData = new FormData();
-    formData.append('resumeId', resumeId);
-    formData.append('resumeData', JSON.stringify(updatedResumeData));
-    removeBackground && formData.append('removeBackground', 'yes');
-    typeof resumeData.personal_info.image === 'object' && formData.append('image', resumeData.personal_info.image);
-
-      const {data} = await api.put('/api/resumes/update', formData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setResumeData(data.resume)
-      toast.success(data.message);
-   }
-    catch (error) {
-      console.error("Error saving resume:", error);
-    }
-  }
-
+  const downloadResume = () => window.print();
 
   return (
     <div>
@@ -216,19 +211,23 @@ useEffect(() => {
 
               {/* Forms */}
               <div className="space-y-6">
-                {activeSection.id === "personal" && (
-                  <PersonalInfoForm
-                    data={resumeData.personal_info}
-                    onChange={(data) =>
-                      setResumeData((prev) => ({
-                        ...prev,
-                        personal_info: data,
-                      }))
-                    }
-                    removeBackground={removeBackground}
-                    setRemoveBackground={setRemoveBackground}
-                  />
-                )}
+               {activeSection.id === "personal" && (
+  <PersonalInfoForm
+    data={resumeData.personal_info}
+    onChange={(data) =>
+      setResumeData((prev) => ({
+        ...prev,
+        personal_info: {
+          ...prev.personal_info,
+          ...data,
+        },
+      }))
+    }
+    removeBackground={removeBackground}
+    setRemoveBackground={setRemoveBackground}
+  />
+)}
+
 
                 {activeSection.id === "summary" && (
                   <ProfessionalSummaryForm

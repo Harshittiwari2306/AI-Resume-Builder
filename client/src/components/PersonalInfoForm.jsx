@@ -1,5 +1,4 @@
 import {
-  BriefcaseBusiness,
   BriefcaseBusinessIcon,
   Globe,
   Linkedin,
@@ -17,12 +16,15 @@ const PersonalInfoForm = ({
   setRemoveBackground,
 }) => {
   const handleChange = (field, value) => {
-    onChange({ ...data, [field]: value });
+    // ✅ MERGE SAFE UPDATE
+    onChange({
+      [field]: value,
+    });
   };
 
   const fields = [
     {
-      key: "full_name",
+      key: "name", // ✅ FIXED (was full_name)
       label: "Full Name",
       icon: User,
       type: "text",
@@ -35,16 +37,36 @@ const PersonalInfoForm = ({
       type: "email",
       required: true,
     },
-    { key: "phone", label: "Phone Number", icon: Phone, type: "tel" },
-    { key: "location", label: "Location", icon: MapPin, type: "text" },
+    {
+      key: "phone",
+      label: "Phone Number",
+      icon: Phone,
+      type: "tel",
+    },
+    {
+      key: "location", // ✅ already correct
+      label: "Location",
+      icon: MapPin,
+      type: "text",
+    },
     {
       key: "profession",
       label: "Profession",
       icon: BriefcaseBusinessIcon,
       type: "text",
     },
-    { key: "linkedin", label: "LinkedIn Profile", icon: Linkedin, type: "url" },
-    { key: "website", label: "Personal Website", icon: Globe, type: "url" },
+    {
+      key: "linkedin",
+      label: "LinkedIn Profile",
+      icon: Linkedin,
+      type: "url",
+    },
+    {
+      key: "website",
+      label: "Personal Website",
+      icon: Globe,
+      type: "url",
+    },
   ];
 
   return (

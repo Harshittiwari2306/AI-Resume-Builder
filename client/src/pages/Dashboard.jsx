@@ -120,7 +120,7 @@ const edittitle = async (event) => {
       },
       {
         headers: {
-          Authorization: `Bearer ${token}`, 
+          Authorization: `Bearer ${token}`, // ✅ FIX
         },
       }
     );
