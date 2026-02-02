@@ -238,6 +238,7 @@ const ResumeBuilder = () => {
                         professional_summary: data,
                       }))
                     }
+                      setResumeData={setResumeData}
                   />
                 )}
 
