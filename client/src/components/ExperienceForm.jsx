@@ -54,7 +54,8 @@ Description: ${experience.description || ""}
 
     try {
       const res = await axios.post(
-        "http://localhost:3000/api/ai/enhance-job-description",
+        `${import.meta.env.VITE_API_BASE_URL}/api/ai/enhance-job-description`,
+
         { userContent: prompt },
         {
           headers: {
