@@ -18,7 +18,7 @@ const ProfessionalSummaryForm = ({ data, onChange, setResumeData }) => {
       setIsGenerating(true);
 
       const response = await axios.post(
-        "http://localhost:3000/api/ai/enhance-pro-sum",
+        `${import.meta.env.VITE_API_BASE_URL}/api/ai/enhance-pro-sum`,
         { userContent: data },
         {
           headers: {
