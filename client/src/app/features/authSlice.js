@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { act } from "react";
 
 const authSlice = createSlice({
     name: "auth",
@@ -14,8 +13,8 @@ const authSlice = createSlice({
             state.user = action.payload.user
         },
         logout: (state)=> {
-            state.token = '',
-            state.user = null,
+            state.token = ''
+            state.user = null
             localStorage.removeItem('token')
         },
         setLoading: (state, action)=> {

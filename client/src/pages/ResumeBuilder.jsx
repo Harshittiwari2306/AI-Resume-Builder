@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
   ChevronLeft,
@@ -211,84 +212,93 @@ const ResumeBuilder = () => {
 
               {/* Forms */}
               <div className="space-y-6">
-               {activeSection.id === "personal" && (
-  <PersonalInfoForm
-    data={resumeData.personal_info}
-    onChange={(data) =>
-      setResumeData((prev) => ({
-        ...prev,
-        personal_info: {
-          ...prev.personal_info,
-          ...data,
-        },
-      }))
-    }
-    removeBackground={removeBackground}
-    setRemoveBackground={setRemoveBackground}
-  />
-)}
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeSection.id}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {activeSection.id === "personal" && (
+                      <PersonalInfoForm
+                        data={resumeData.personal_info}
+                        onChange={(data) =>
+                          setResumeData((prev) => ({
+                            ...prev,
+                            personal_info: {
+                              ...prev.personal_info,
+                              ...data,
+                            },
+                          }))
+                        }
+                        removeBackground={removeBackground}
+                        setRemoveBackground={setRemoveBackground}
+                      />
+                    )}
 
+                    {activeSection.id === "summary" && (
+                      <ProfessionalSummaryForm
+                        data={resumeData.professional_summary}
+                        onChange={(data) =>
+                          setResumeData((prev) => ({
+                            ...prev,
+                            professional_summary: data,
+                          }))
+                        }
+                        setResumeData={setResumeData}
+                      />
+                    )}
 
-                {activeSection.id === "summary" && (
-                  <ProfessionalSummaryForm
-                    data={resumeData.professional_summary}
-                    onChange={(data) =>
-                      setResumeData((prev) => ({
-                        ...prev,
-                        professional_summary: data,
-                      }))
-                    }
-                      setResumeData={setResumeData}
-                  />
-                )}
+                    {activeSection.id === "experience" && (
+                      <ExperienceForm
+                        data={resumeData.work_experience}
+                        onChange={(data) =>
+                          setResumeData((prev) => ({
+                            ...prev,
+                            work_experience: data,
+                          }))
+                        }
+                      />
+                    )}
 
-                {activeSection.id === "experience" && (
-                  <ExperienceForm
-                    data={resumeData.work_experience}
-                    onChange={(data) =>
-                      setResumeData((prev) => ({
-                        ...prev,
-                        work_experience: data,
-                      }))
-                    }
-                  />
-                )}
+                    {activeSection.id === "education" && (
+                      <EducationForm
+                        data={resumeData.education}
+                        onChange={(data) =>
+                          setResumeData((prev) => ({
+                            ...prev,
+                            education: data,
+                          }))
+                        }
+                      />
+                    )}
 
-                {activeSection.id === "education" && (
-                  <EducationForm
-                    data={resumeData.education}
-                    onChange={(data) =>
-                      setResumeData((prev) => ({
-                        ...prev,
-                        education: data,
-                      }))
-                    }
-                  />
-                )}
+                    {activeSection.id === "projects" && (
+                      <ProjectForm
+                        data={resumeData.project}
+                        onChange={(data) =>
+                          setResumeData((prev) => ({
+                            ...prev,
+                            project: data,
+                          }))
+                        }
+                      />
+                    )}
 
-                {activeSection.id === "projects" && (
-                  <ProjectForm
-                    data={resumeData.project}
-                    onChange={(data) =>
-                      setResumeData((prev) => ({
-                        ...prev,
-                        project: data,
-                      }))
-                    }
-                  />
-                )}
-
-                {activeSection.id === "skills" && (
-                  <SkillsForm
-                    data={resumeData.skills}
-                    onChange={(data) =>
-                      setResumeData((prev) => ({
-                        ...prev,
-                        skills: data,
-                      }))
-                    }
-                  />
-                )}
+                    {activeSection.id === "skills" && (
+                      <SkillsForm
+                        data={resumeData.skills}
+                        onChange={(data) =>
+                          setResumeData((prev) => ({
+                            ...prev,
+                            skills: data,
+                          }))
+                        }
+                      />
+                    )}
+                  </motion.div>
+                </AnimatePresence>
               </div>
 
               <button
@@ -339,7 +349,7 @@ const ResumeBuilder = () => {
                 <button onClick={downloadResume}
                   className="flex items-center gap-2 px-6 py-2 text-xs
                 bg-gradient-to-br from-green-100 to-green-200 text-green-600
-                rounded-lg ring-green-300 gover:ring transition-colors"
+                rounded-lg ring-green-300 hover:ring transition-colors"
                 >
                   <DownloadCloudIcon className="size-4" /> Download
                 </button>

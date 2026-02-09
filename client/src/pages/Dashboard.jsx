@@ -9,13 +9,11 @@
   XIcon,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { dummyResumeData } from "../assets/assets";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
 import pdfToText from "react-pdftotext";
 import api from "../configs/api";
-import { all } from "axios";
 
 const Dashboard = () => {
 
@@ -34,22 +32,27 @@ const Dashboard = () => {
 
   const navigate = useNavigate();
 
- const loadAllResumes = async () => {
-  try {
-    const { data } = await api.get(
-      "/api/users/resumes",
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+  useEffect(() => {
+    const loadAllResumes = async () => {
+      try {
+        const { data } = await api.get(
+          "/api/users/resumes",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setAllResumes(data.resumes);
+      } catch (error) {
+        toast.error(error?.response?.data?.message || error.message);
       }
-    );
-    setAllResumes(data.resumes);
-  } catch (error) {
-    toast.error(error?.response?.data?.message || error.message);
-  }
-};
+    };
 
+    if (token) {
+      loadAllResumes();
+    }
+  }, [token]);
 
   const createResume = async (event) => {
     try {
@@ -163,10 +166,6 @@ const deleteResume = async (resumeId) => {
     }
   }
 };
-
-  useEffect(() => {
-    loadAllResumes();
-  }, []);
 
   return (
     <div>
